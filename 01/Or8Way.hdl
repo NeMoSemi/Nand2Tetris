@@ -1,0 +1,42 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Or8Way.hdl
+
+/**
+ * 8-way Or: 
+ * out = (in[0] or in[1] or ... or in[7])
+ */
+
+CHIP Or8Way {
+    IN in[8];
+    OUT out;
+
+    PARTS:
+    Nand (a=in[0], b=in[0], out=NotA);
+    Nand (a=in[1], b=in[1], out=NotB);
+    Nand (a=in[2], b=in[2], out=NotC);
+    Nand (a=in[3], b=in[3], out=NotD);
+    Nand (a=in[4], b=in[4], out=NotE);
+    Nand (a=in[5], b=in[5], out=NotF);
+    Nand (a=in[6], b=in[6], out=NotG);
+    Nand (a=in[7], b=in[7], out=NotH);
+
+    Nand (a=NotA, b=NotB, out=NandAB);
+    Nand (a=NotC, b=NotD, out=NandCD);
+    Nand (a=NotE, b=NotF, out=NandEF);
+    Nand (a=NotG, b=NotH, out=NandGH);
+
+    Nand (a=NandAB, b=NandAB, out=NotNandAB);
+    Nand (a=NandCD, b=NandCD, out=NotNandCD);
+    Nand (a=NandEF, b=NandEF, out=NotNandEF);
+    Nand (a=NandGH, b=NandGH, out=NotNandGH);
+
+    Nand (a=NotNandAB, b=NotNandCD, out=NandABCD);
+    Nand (a=NotNandEF, b=NotNandGH, out=NandEFGH);
+
+    Nand (a=NandABCD, b=NandABCD, out=NotNandABCD);
+    Nand (a=NandEFGH, b=NandEFGH, out=NotNandEFGH);
+
+    Nand (a=NotNandABCD, b=NotNandEFGH, out=out);
+}
