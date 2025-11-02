@@ -1,0 +1,40 @@
+/*
+* На вход подается 16-битное число period и флаг сброса часов reset.
+
+* У чипа два выхода:
+* 1. ticks (0 ≤ ticks < period) — сколько тиков прошло с начала периода,
+* 2. loop — равен единице, когда ticks равен нулю.
+* 
+* Если предыдущее значение ticks оказывается за пределами корректных 
+* значений (из-за уменьшения period), нужно вернуть ticks=0, loop=1
+*/
+CHIP Clock {
+    IN period[16], reset;
+    OUT ticks[16], loop;
+
+    PARTS:
+    Register(in=newValue, load=true, out=ticks, out=currentTick);
+    DFF(in=newLoop, out=loop);
+
+    //+1
+    Inc16(in=currentTick, out=incCurrentTick);
+
+    //Сравниваем количество тиков и период, если левый бит 0, то tick >= period
+    Not16(in=incCurrentTick, out=notIncCurrentTick);
+    Add16(a=notIncCurrentTick, b=period, out[15]=notZero);
+    Not(in=notZero, out=zero);
+
+    //нужно ли обнулять тики
+    Not(in=reset, out=notReset);
+    And(a=zero, b=notReset, out=isTickToZero);
+
+    //запишем loop
+    Not(in=isTickToZero, out=newLoop);
+
+    //если isTickToZero, то ticks в 0
+    And16(a[0]=isTickToZero, a[1]=isTickToZero, a[2]=isTickToZero, a[3]=isTickToZero,
+        a[4]=isTickToZero, a[5]=isTickToZero, a[6]=isTickToZero, a[7]=isTickToZero,
+        a[8]=isTickToZero, a[9]=isTickToZero, a[10]=isTickToZero, a[11]=isTickToZero,
+        a[12]=isTickToZero, a[13]=isTickToZero, a[14]=isTickToZero, a[15]=isTickToZero, b=incCurrentTick, out=newValue);
+    
+}
