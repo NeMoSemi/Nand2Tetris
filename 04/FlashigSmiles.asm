@@ -1,5 +1,5 @@
-//запишем некоторые константы(для читабельности кода)
-(CONST)
+//запишем некоторые константы и переменные(для читабельности кода)
+(INIT)
     //номера клавиш и соответствующие им направления
     @130
     D = A
@@ -57,6 +57,52 @@
     @downoffset
     M = D
 
+    //создадим "массив", где будут лежать значения строк для смайла
+    @7224
+    D = A
+    @smilearray
+    M = D
+    A = A + 1
+    M = D
+    A = A + 1
+    M = D
+    A = A + 1
+    M = 0
+    A = A + 1
+    M = 0
+    //теперь запишем следующий индекс в переменную, чтобы взять следующее значение строки
+    D = A + 1
+    @currentindex
+    M = D
+    //значение  6 строки
+    @24582
+    D = A
+    @currentindex
+    A = M
+    M = D
+    //сместим currentindex в 7 строку
+    @currentindex
+    M = M + 1
+    //значение  7 строки
+    @14364
+    D = A
+    @currentindex
+    A = M
+    M = D
+    //сместим currentindex в 8 строку
+    @currentindex
+    M = M + 1
+    //значение 8 строки
+    @4080
+    D = A
+    @currentindex
+    A = M
+    M = D
+    //в 9 строку поставим 1 как флаг выхода из уикла отрисовки
+    @currentindex
+    M = M + 1
+    A = M
+    M = 1
 
 //главный цикл программы
 (MAINLOOP)
@@ -110,152 +156,86 @@
     @MAINLOOP
     D;JEQ                         
 
-    //проверяем нажата ли какая-то из "смещающих" кнопок
+    //проверяем нажата ли какая-то из "смещающих" кнопок, если нажата - ставим startindex в соответствующую позицию и отрисовываем смайл
     //left
-    @KBD
-    D = M
-    @keyleft
-    D = D - M
-    @LEFTPRESSED
-    D;JEQ
-
-    //up
-    @KBD
-    D = M
-    @keyup
-    D = D - M
-    @UPPRESSED
-    D;JEQ
-
-    //right
-    @KBD
-    D = M
-    @keyright
-    D = D - M
-    @RIGHTPRESSED
-    D;JEQ
-
-    //down
-    @KBD
-    D = M
-    @keydown
-    D = D - M
-    @DOWNPRESSED
-    D;JEQ
-
-    @MAINLOOP
-    0;JMP
-
-
-(LEFTPRESSED)
     @leftoffset
     D = M
     @startindex
     M = D
+    @KBD
+    D = M
+    @keyleft
+    D = D - M
     @DRAWSMILE
-    0;JMP
+    D;JEQ
 
-(UPPRESSED)
+    //up
     @upoffset
     D = M
     @startindex
     M = D
+    @KBD
+    D = M
+    @keyup
+    D = D - M
     @DRAWSMILE
-    0;JMP
+    D;JEQ
 
-(RIGHTPRESSED)
+    //right
     @rightoffset
     D = M
     @startindex
     M = D
+    @KBD
+    D = M
+    @keyright
+    D = D - M
     @DRAWSMILE
-    0;JMP
+    D;JEQ
 
-(DOWNPRESSED)
+    //down
     @downoffset
     D = M
     @startindex
     M = D
+    @KBD
+    D = M
+    @keydown
+    D = D - M
     @DRAWSMILE
+    D;JEQ
+
+    @MAINLOOP
     0;JMP
 
 (DRAWSMILE)
-    //изменяем 1 строку
-    @7224
-    D = A
-    @startindex
-    A = M
-    M = D
-
-    @startindex
+    //сбрасываем currentindex на начало массива смайла
+    @smilearray
     D = M
-    @32
-    D = D + A
-    @startindex
+    @currentindex
     M = D
+    @DRAWLOOP
+    0;JMP
 
-    //2 строка
-    @7224
-    D = A
-    @startindex
+(DRAWLOOP)
+    //берём текущую строку из массива
+    @currentindex
     A = M
-    M = D
-
-    @startindex
     D = M
-    @32
-    D = D + A
-    @startindex
-    M = D
 
-    //3 строка
-    @7224
-    D = A
-    @startindex
-    A = M
-    M = D
-
-    @startindex
-    D = M
-    @96        //2 строки пропускаются
-    D = D + A
-    @startindex
-    M = D
-
-    //6 строка
-    @24582
-    D = A
-    @startindex
-    A = M
-    M = D
-
-    @startindex
-    D = M
-    @32
-    D = D + A
-    @startindex
-    M = D
-
-    //7 строка
-    @14364
-    D = A
-    @startindex
-    A = M
-    M = D
-
-    @startindex
-    D = M
-    @32
-    D = D + A
-    @startindex
-    M = D
-
-    //8 строка
-    @4080
-    D = A
-    @startindex
-    A = M
-    M = D
-
+    //если строка == 1 значит мы достигли кона массива, возвращаемся в MAINLOOP
     @MAINLOOP
+    D;JEQ
+
+    //пишем строку в экран по startindex
+    @startindex
+    A = M
+    M = D
+
+    //переходим к следующей строке массива
+    @currentindex
+    M = M + 1
+
+    //возвращаемся в начало цикла
+    @DRAWLOOP
     0;JMP
