@@ -1,0 +1,31 @@
+CHIP Memory20K {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    //ram16k load
+    Not(in=address[14], out=not14addr);
+    And(a=not14addr, b=load, out=ram16kload);
+
+    //screen load
+    Not(in=address[13], out=not13addr);
+    And(a=address[14], b=not13addr, out=isScreen);
+    And(a=isScreen, b=load, out=screenload);
+
+    //ram4k load
+    And(a=address[14], b=address[13], out=address14and13);
+    And(a=address14and13, b=address[12], out=address14and13and12);
+    And(a=address14and13and12, b=load, out=ram4kload);
+
+
+    RAM16K(in=in, load=ram16kload, address=address[0..13], out=ram16kout);
+    Screen(in=in, load=screenload, address=address[0..12], out=screenout);
+    Keyboard(out=pressedkey);
+    RAM4K(in=in, load=ram4kload, address=address[0..11], out=ram4kout);
+
+    //если 14 бит 0, то в память, иначе, если 13 бит 0, то экран, иначе выберем клавиатуру или ram4k исходя из 12 бита
+
+    Mux16(a=pressedkey, b=ram4kout, sel=address[12], out=keyboardorRam4k);
+    Mux16(a=screenout, b=keyboardorRam4k, sel=address[13], out=out1);
+    Mux16(a=ram16kout, b=out1, sel=address[14], out=out);
+}
